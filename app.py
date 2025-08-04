@@ -345,69 +345,42 @@ graph = builder.compile()
 st.set_page_config(page_title="QA Autoimmune", page_icon="🤖", layout="wide")
 st.title("📚 RAG Autoimmune")
 
-# initialize history
+# Initialize chat history
 if "history" not in st.session_state:
     st.session_state.history = []
 
+# Input form
+with st.form(key="chat_form", clear_on_submit=True):
+    user_input = st.text_input("Question:")
+    submitted = st.form_submit_button("Send")
+
+# --- Async handler ---
 async def run_graph(user_input):
-    # append and display user message
     st.session_state.history.append({"role": "user", "content": user_input})
-    # … run your LangGraph/RAG pipeline …
-    # whenever you get assistant output:
-    assistant_output = "..."  # replace with real
-    st.session_state.history.append({"role": "assistant", "content": assistant_output})
-    return assistant_output
+    messages = [{"role": "user", "content": user_input}]
+    input_state = {
+        "question": user_input,
+        "loop_step": 0,
+        "max_retries": 3,
+    }
 
-# Render the chat history
-for msg in st.session_state.history:
-    st.chat_message(msg["role"], avatar=msg["role"]).write(msg["content"])
+    async for step in graph.astream(input_state, stream_mode="values"):
+        if "generation" in step:
+            output = step["generation"].content if hasattr(step["generation"], "content") else step["generation"]
+            st.chat_message("assistant").write(output)
+            st.session_state.history.append({"role": "assistant", "content": output})
 
-# Render the chat input widget
-if prompt := st.chat_input("Type your question…"):
-    # display it immediately
-    st.chat_message("user", avatar="user").write(prompt)
-    # process it
-    asyncio.run(run_graph(prompt))
+# Handle submission
+if submitted and user_input:
+    st.chat_message("user").write(user_input)
+    st.session_state.history.append({"role": "user", "content": user_input})
 
-# st.set_page_config(page_title="QA Autoimmune", page_icon="🤖", layout="wide")
-# st.title("📚 RAG Autoimmune")
+    assistant_message = asyncio.run(run_graph(user_input))
+    st.session_state.history.append({"role": "assistant", "content": assistant_message})
 
-# # Initialize chat history
-# if "history" not in st.session_state:
-#     st.session_state.history = []
-
-# # Input form
-# with st.form(key="chat_form", clear_on_submit=True):
-#     user_input = st.text_input("Question:")
-#     submitted = st.form_submit_button("Send")
-
-# # --- Async handler ---
-# async def run_graph(user_input):
-#     st.session_state.history.append({"role": "user", "content": user_input})
-#     messages = [{"role": "user", "content": user_input}]
-#     input_state = {
-#         "question": user_input,
-#         "loop_step": 0,
-#         "max_retries": 3,
-#     }
-
-#     async for step in graph.astream(input_state, stream_mode="values"):
-#         if "generation" in step:
-#             output = step["generation"].content if hasattr(step["generation"], "content") else step["generation"]
-#             st.chat_message("assistant").write(output)
-#             st.session_state.history.append({"role": "assistant", "content": output})
-
-# # Handle submission
-# if submitted and user_input:
-#     st.chat_message("user").write(user_input)
-#     st.session_state.history.append({"role": "user", "content": user_input})
-
-#     assistant_message = asyncio.run(run_graph(user_input))
-#     st.session_state.history.append({"role": "assistant", "content": assistant_message})
-
-# # Render existing history
-# for chat in st.session_state.history:
-#     st.chat_message(chat["role"]).write(chat["content"])
+# Render existing history
+for chat in st.session_state.history:
+    st.chat_message(chat["role"]).write(chat["content"])
 
 # Footer
 st.markdown("---")
