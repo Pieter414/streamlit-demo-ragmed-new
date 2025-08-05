@@ -387,9 +387,9 @@ if submitted and user_input:
     assistant_message = asyncio.run(run_graph(user_input))
     st.session_state.history.append({"role": "assistant", "content": assistant_message})
 
-Render existing history
-for chat in st.session_state.history:
-    st.chat_message(chat["role"]).write(chat["content"])
+# # Render existing history
+# for chat in st.session_state.history:
+#     st.chat_message(chat["role"]).write(chat["content"])
 
 # Footer
 st.markdown("---")
