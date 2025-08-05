@@ -189,6 +189,8 @@ Provide an answer to this questions using only the above context.
 
 Use three sentences maximum and keep the answer concise.
 
+Answer the question in Indonesian.
+
 Answer:"""
 
 # Hallucination grader instructions
