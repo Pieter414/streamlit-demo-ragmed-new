@@ -54,15 +54,6 @@ llm_json = llm.with_structured_output(RelevanceGrade)
 # Define RAG node for LangGraph
 ### Nodes
 def retrieve(state):
-    """
-    Retrieve documents from vectorstore
-
-    Args:
-        state (dict): The current graph state
-
-    Returns:
-        state (dict): New key added to state, documents, that contains retrieved documents
-    """
     print("---RETRIEVE---")
     question = state["question"]
 
@@ -119,65 +110,7 @@ def grade_documents(state):
     }
 
 
-
-
 ### Edges
-
-
-def route_question(state):
-    """
-    Route question to web search or RAG
-
-    Args:
-        state (dict): The current graph state
-
-    Returns:
-        str: Next node to call
-    """
-
-    print("---ROUTE QUESTION---")
-    route_question = llm_json.invoke(
-        [SystemMessage(content=router_instructions)]
-        + [HumanMessage(content=state["question"])]
-    )
-    source = json.loads(route_question.content)["datasource"]
-    if source == "websearch":
-        print("---ROUTE QUESTION TO WEB SEARCH---")
-        return "websearch"
-    elif source == "vectorstore":
-        print("---ROUTE QUESTION TO RAG---")
-        return "vectorstore"
-
-
-def decide_to_generate(state):
-    """
-    Determines whether to generate an answer, or add web search
-
-    Args:
-        state (dict): The current graph state
-
-    Returns:
-        str: Binary decision for next node to call
-    """
-
-    print("---ASSESS GRADED DOCUMENTS---")
-    question = state["question"]
-    web_search = state["web_search"]
-    filtered_documents = state["documents"]
-
-    if web_search == "Yes":
-        # All documents have been filtered check_relevance
-        # We will re-generate a new query
-        print(
-            "---DECISION: NOT ALL DOCUMENTS ARE RELEVANT TO QUESTION, INCLUDE WEB SEARCH---"
-        )
-        return "websearch"
-    else:
-        # We have relevant documents, so generate answer
-        print("---DECISION: GENERATE---")
-        return "generate"
-
-
 def grade_generation_v_documents_and_question(state):
     print("---CHECK HALLUCINATIONS---")
     question = state["question"]
@@ -240,23 +173,46 @@ Carefully and objectively assess whether the document contains at least some inf
 Return JSON with a single key: binary_score, that is 'yes' or 'no' to indicate relevance."""
   
 
-rag_prompt = """You are an assistant for question-answering tasks. 
+# rag_prompt = """You are an assistant for question-answering tasks. 
+
+# Here is the context to use to answer the question:
+
+# {context} 
+
+# Think carefully about the above context. 
+
+# Now, review the user question:
+
+# {question}
+
+# Provide an answer to this questions using only the above context. 
+
+# Use three or four sentences maximum and keep the answer concise.
+
+# Answer the question in Indonesian.
+
+# Answer:"""
+
+rag_prompt = """
+You are an Autoimmune Disease Assistant whose primary goal is to help patients with autoimmune conditions.
 
 Here is the context to use to answer the question:
+{context}
 
-{context} 
+Guidelines:
+1. If the user’s query can be truthfully and factually answered using the knowledge base only, respond concisely (3–4 sentences), politely, and professionally in Indonesian.
+2. If the answer is not contained in the knowledge base, reply exactly:
+   “Saya tidak mengetahui jawaban atas pertanyaan Anda. Jika pertanyaan ini perlu dijawab oleh dokter, silakan jadwalkan konsultasi.”
+3. Do not attempt to answer anything outside the scope of autoimmune conditions.
+4. In case of a conflict between the raw knowledge base and the new knowledge base, prefer the new knowledge base, and within it, the latest source.
+5. The user’s question is in Indonesian; always detect and respond in Indonesian.
+6. Do not generate any additional opening or closing remarks—just the answer.
 
-Think carefully about the above context. 
-
-Now, review the user question:
-
+User question:
 {question}
 
-Provide an answer to this questions using only the above context. 
-
-Use three sentences maximum and keep the answer concise.
-
-Answer:"""
+Answer:
+"""
 
 # Hallucination grader instructions
 hallucination_grader_instructions = """
@@ -342,6 +298,59 @@ builder.add_edge("generate", END)
 graph = builder.compile()
 
 # --- Streamlit UI ---
+# st.set_page_config(page_title="QA Autoimmune", page_icon="🤖", layout="wide")
+
+# # Title
+# st.markdown("<h1 style='text-align:center;'>📚 RAG Autoimmune</h1>", unsafe_allow_html=True)
+
+# # Initialize session state for chat
+# if "history" not in st.session_state:
+#     st.session_state.history = []
+
+# # Chat container
+# chat_container = st.container()
+
+# # Input at bottom
+# input_col, _ = st.columns([4,1])
+# with input_col:
+#     user_input = st.text_input("", placeholder="Type your message...", key="input_box")
+
+# # Send button
+# send_button = st.button("Send")
+
+# # Function to render messages
+# def render_chat():
+#     chat_container.empty()
+#     with chat_container:
+#         for msg in st.session_state.history:
+#             if msg['role'] == 'user':
+#                 st.chat_message("user").write(msg['content'])
+#             else:
+#                 st.chat_message("assistant").write(msg['content'])
+
+# # Handle sending
+# if send_button and user_input:
+#     # Append user message
+#     st.session_state.history.append({"role": "user", "content": user_input})
+#     render_chat()
+
+#     # Async call to RAG graph
+#     async def run_graph(user_input):
+#         messages = [{"role": "user", "content": user_input}]
+#         input_state = {"question": user_input, "loop_step": 0, "max_retries": 3}
+
+#         async for step in graph.astream(input_state, stream_mode="values"):
+#             if "generation" in step:
+#                 output = step["generation"].content if hasattr(step["generation"], "content") else step["generation"]
+#                 st.session_state.history.append({"role": "assistant", "content": output})
+#                 render_chat()
+
+#     # Run and render
+#     asyncio.run(run_graph(user_input))
+
+# # Initial render
+# render_chat()
+
 st.set_page_config(page_title="QA Autoimmune", page_icon="🤖", layout="wide")
 st.title("📚 RAG Autoimmune")
 
@@ -378,9 +387,9 @@ if submitted and user_input:
     assistant_message = asyncio.run(run_graph(user_input))
     st.session_state.history.append({"role": "assistant", "content": assistant_message})
 
-# Render existing history
-for chat in st.session_state.history:
-    st.chat_message(chat["role"]).write(chat["content"])
+# # Render existing history
+# for chat in st.session_state.history:
+#     st.chat_message(chat["role"]).write(chat["content"])
 
 # Footer
 st.markdown("---")
