@@ -24,9 +24,6 @@ from langchain.schema import Document, HumanMessage, SystemMessage
 # misc import
 import operator, json
 
-# graph visualization
-from IPython.display import Image, display
-
 def setup_graph():
     # -- SETUP SCHEMA STATE --
 
