@@ -80,7 +80,9 @@ def setup_graph():
     class Grader(BaseModel):
         binary_score: str = Field(..., description="Either 'yes' or 'no'") # document relevance
         explanation: Optional[str] = Field(None, description="Explanation for the score") # hallucination
-
+        
+    # LLM setup (json)
+    llm_json = llm.with_structured_output(Grader)
 
     # -- SETUP PROMPT
 
