@@ -1,5 +1,8 @@
 # -- IMPORT --
 
+# import streamlit keys
+import streamlit as st
+
 # state scheme import
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Annotated, Optional
@@ -34,10 +37,10 @@ def setup_graph():
     # -- SETUP CONFIGURATION --
 
     # Configure the secrets keys
-    load_dotenv()
-    MISTRAL_API_KEY = os.environ.get('MISTRAL_API_KEY')
-    HF_TOKEN = os.environ.get('HF_TOKEN')
-    PERSIST_PATH = '../data/Granulomatis_with_Poliangiitis_updated_database'
+    secrets = st.secrets['general']
+    MISTRAL_API_KEY = secrets['MISTRAL_API_KEY']
+    HF_TOKEN = secrets['HF_TOKEN']
+    PERSIST_PATH = secrets['PERSIST_PATH']
 
     os.environ["MISTRAL_API_KEY"] = MISTRAL_API_KEY
     os.environ["HF_TOKEN"] = HF_TOKEN
