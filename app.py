@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 import asyncio
-from rag import setup_graph
+from src import rag
 # from pydantic import BaseModel, Field
 # from typing import List, Dict, Any, Annotated
 # from typing_extensions import TypedDict
@@ -15,7 +15,7 @@ from rag import setup_graph
 
 # --- Streamlit UI ---
 
-graph = setup_graph()
+graph = rag.setup_graph()
 
 st.set_page_config(page_title="QA Autoimmune", page_icon="🤖", layout="wide")
 st.title("📚 RAG Autoimmune")
