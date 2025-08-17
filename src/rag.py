@@ -320,6 +320,10 @@ def setup_graph():
         loop_step = state.get("loop_step", 0)
         max_retries = state.get("max_retries", 3)
 
+        if loop_step > max_retries:
+            print("---DECISION: MAX RETRIES REACHED---")
+            return "max retries"
+
         hallucination_grader_prompt_formatted = hallucination_grader_prompt.format(
             documents=documents, generation=generation
         )
@@ -396,7 +400,7 @@ def setup_graph():
         {
             "relevant": "generate",
             "retry": "retrieve",
-            "max retries": END,
+            "max retries": "generate",
         },
     )
 
