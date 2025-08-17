@@ -304,7 +304,7 @@ def setup_graph():
             print("---DOCS RELEVANT, CONTINUE TO GENERATE---")
             return "relevant"
 
-        elif loop_step <= max_retries:
+        elif loop_step < max_retries:
             print("---DOCS NOT RELEVANT, RETRY RETRIEVE---")
             return "retry"
 
