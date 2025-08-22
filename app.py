@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import asyncio
 from src import rag
+import time
 # from pydantic import BaseModel, Field
 # from typing import List, Dict, Any, Annotated
 # from typing_extensions import TypedDict
@@ -14,6 +15,9 @@ from src import rag
 # from langchain.schema import Document, HumanMessage, SystemMessage
 
 # --- Streamlit UI ---
+
+start_time = time.time()
+time_placeholder = st.empty()
 
 graph = rag.setup_graph()
 
@@ -49,6 +53,11 @@ async def run_graph(user_input):
                 else step["generation"]
             )
 
+            
+    total_time = time.time() - start_time
+    time_placeholder.write(f"✅ Done in {total_time:.1f} seconds")
+    st.chat_message("assistant").write(time_placeholder)
+            
     # write only the final generation after loop ends
     if last_output:
         st.chat_message("assistant").write(last_output)
