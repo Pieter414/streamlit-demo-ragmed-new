@@ -38,12 +38,27 @@ async def run_graph(user_input):
         "loop_step": 0,
         "max_retries": 3,
     }
-
+    
+    last_output = None  # store only the latest generation
+    
     async for step in graph.astream(input_state, stream_mode="values"):
         if "generation" in step:
-            output = step["generation"].content if hasattr(step["generation"], "content") else step["generation"]
-            st.chat_message("assistant").write(output)
-            st.session_state.history.append({"role": "assistant", "content": output})
+            last_output = (
+                step["generation"].content 
+                if hasattr(step["generation"], "content") 
+                else step["generation"]
+            )
+
+    # write only the final generation after loop ends
+    if last_output:
+        st.chat_message("assistant").write(last_output)
+        st.session_state.history.append({"role": "assistant", "content": last_output})
+
+    # async for step in graph.astream(input_state, stream_mode="values"):
+    #     if "generation" in step:
+    #         output = step["generation"].content if hasattr(step["generation"], "content") else step["generation"]
+    #         st.chat_message("assistant").write(output)
+    #         st.session_state.history.append({"role": "assistant", "content": output})
 
 # Handle submission
 if submitted and user_input:
