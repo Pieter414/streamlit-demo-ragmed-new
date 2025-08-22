@@ -55,8 +55,7 @@ async def run_graph(user_input):
 
             
     total_time = time.time() - start_time
-    time_placeholder.write(f"✅ Done in {total_time:.1f} seconds")
-    st.chat_message("assistant").write(time_placeholder)
+    st.chat_message("assistant").write(f"✅ Done in {total_time:.1f} seconds")
             
     # write only the final generation after loop ends
     if last_output:
