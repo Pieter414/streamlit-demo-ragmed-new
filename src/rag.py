@@ -34,7 +34,7 @@ from functools import lru_cache
 import hashlib
 
 # other py files import
-import retrieve
+from . import retrieve
 
 # -- SETUP CONFIGURATION --
 
