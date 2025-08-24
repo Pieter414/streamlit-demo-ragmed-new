@@ -34,7 +34,7 @@ from functools import lru_cache
 import hashlib
 
 # other py files import
-from retrieve import setup_retrieval
+import retrieve
 
 # -- SETUP CONFIGURATION --
 
@@ -95,7 +95,7 @@ def setup_graph():
     llm_json = llm.with_structured_output(Grader)
 
     # -- SETUP RETRIEVAL --
-    retrievers = setup_retrieval()
+    retrievers = retrieve.setup_retrieval()
     
     # -- SETUP PROMPT ---
 
