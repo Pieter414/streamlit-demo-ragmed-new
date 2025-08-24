@@ -15,7 +15,6 @@ from dotenv import load_dotenv
 
 # llm langchain import
 from langchain_mistralai import ChatMistralAI, MistralAIEmbeddings
-from langchain_openai import ChatOpenAI
 
 # langgraph import
 from langgraph.graph import StateGraph, END
