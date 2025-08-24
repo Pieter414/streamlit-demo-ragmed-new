@@ -4,5 +4,6 @@ langgraph
 langchain
 langchain-community
 langchain_mistralai
+langchain_openai
 pydantic
 scikit-learn
