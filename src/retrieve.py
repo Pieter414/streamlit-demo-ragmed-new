@@ -136,6 +136,10 @@ def setup_retrieval():
     arthritis_retriever = arthritis_vectorstore.as_retriever(
         search_type="mmr", search_kwargs={"k": 3, "fetch_k": 10}
     )
+    
+    sle_retriever = sle_vectorstore.as_retriever(
+        search_type="mmr", search_kwargs={"k": 3, "fetch_k": 10}
+    ),
 
     retrievers = [
         {
@@ -181,9 +185,7 @@ def setup_retrieval():
         {
             "name": "SLE",
             "description": "General information about Systemic Lupus Erythematosus (SLE).",
-            "retriever": sle_vectorstore.as_retriever(
-                search_type="mmr", search_kwargs={"k": 3, "fetch_k": 10}
-            ),
+            "retriever": sle_retriever,
         },
         # {
         #     "name": "Ankyolising Spondilitis",

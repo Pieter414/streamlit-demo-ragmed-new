@@ -261,8 +261,8 @@ def setup_graph():
         )
 
         if retriever_info is None:
-            print("⚠️ No retriever found, falling back to Arthritis DB")
-            retriever_info = next(r for r in retrievers if r["name"] == "Arthritis")
+            print("⚠️ No retriever found, falling back to SLE DB")
+            retriever_info = next(r for r in retrievers if r["name"] == "SLE")
 
         retriever = retriever_info["retriever"]
 
@@ -290,7 +290,7 @@ def setup_graph():
         )
 
         if retriever_info is None:
-            return "Arthritis"  # fallback
+            return "SLE"  # fallback
 
         return retriever_info["name"]
 
@@ -364,8 +364,8 @@ def setup_graph():
             (r for r in retrievers if r["name"].lower() == retrieve_database.lower()), None
         )
         if retriever_info is None:
-            print("⚠️ No retriever found, falling back to Arthritis DB")
-            retriever_info = next(r for r in retrievers if r["name"] == "Arthritis")
+            print("⚠️ No retriever found, falling back to SLE DB")
+            retriever_info = next(r for r in retrievers if r["name"] == "SLE")
 
         retriever_name = retriever_info["name"]
 
