@@ -276,6 +276,8 @@ def setup_graph():
             retriever_info = next(r for r in retrievers if r["name"] == "SLE")
 
         retriever = retriever_info["retriever"]
+        if isinstance(retriever, tuple):
+            retriever = retriever[0]
 
         docs = retriever.invoke(paraphrase)
         return docs
